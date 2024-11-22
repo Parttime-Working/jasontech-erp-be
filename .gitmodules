@@ -1,0 +1,3 @@
+[submodule "src/frontend/jasontech-erp"]
+	path = src/frontend/jasontech-erp
+	url = https://gitlab.com/jjasoncool/jasontech-erp-fe.git
