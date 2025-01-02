@@ -9,6 +9,7 @@ services:
       - ./src/frontend/jasontech-erp:/app
     ports:
       - "${NODE_PORT}:3000"
+    restart: always
 
   app:
     build:
@@ -27,6 +28,7 @@ services:
       - "${GO_PORT}:8000"
     depends_on:
       - db
+    restart: always
 
   db:
     image: postgres:${DB_VERSION}
@@ -39,6 +41,7 @@ services:
     volumes:
       - db_data:/var/lib/postgresql/data
     container_name: ${DB_HOST}
+    restart: always
 
 volumes:
   db_data:
