@@ -1,0 +1,13 @@
+{
+  "go.alternateTools": {
+    "go": "docker exec -i jasontech-erp-app go"
+  },
+  "go.goplsWrapper": [
+    "docker",
+    "exec",
+    "-i",
+    "jasontech-erp-app",
+    "gopls"
+  ],
+  "go.toolsManagement.go": "docker exec -i jasontech-erp-app go"
+}
