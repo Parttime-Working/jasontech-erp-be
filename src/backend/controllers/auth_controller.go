@@ -1,8 +1,6 @@
 package controllers
 
 import (
-	"context"
-	"database/sql"
 	"erp/models"
 	"erp/db"
 	"os"
@@ -29,23 +27,16 @@ func Login(c *gin.Context) {
 		return
 	}
 
-	// 取得資料庫連接
-	conn := database.GetConn()
-
-	// 查詢數據庫以驗證用戶
+	// 使用 GORM 查詢使用者
 	var user models.User
-	err := conn.QueryRow(context.Background(), "SELECT id, username, password, email FROM users WHERE username=$1", credentials.Username).Scan(&user.ID, &user.Username, &user.Password, &user.Email)
-	if err == sql.ErrNoRows {
+	result := database.Where("username = ?", credentials.Username).First(&user)
+	if result.Error != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid username or password"})
-		return
-	}
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Database error"})
 		return
 	}
 
 	// 驗證密碼
-	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(credentials.Password))
+	err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(credentials.Password))
 	if err != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid username or password"})
 		return
@@ -69,5 +60,12 @@ func Login(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"message": "Login successful",
 		"token":   tokenString,
+		"user": models.UserResponse{
+			ID:        user.ID,
+			Username:  user.Username,
+			Email:     user.Email,
+			CreatedAt: user.CreatedAt,
+			UpdatedAt: user.UpdatedAt,
+		},
 	})
 }

@@ -10,6 +10,8 @@ services:
     container_name: jasontech-erp-frontend
     ports:
       - "${NODE_PORT}:3000"
+    depends_on:
+      - app
     restart: always
 
   app:
@@ -23,6 +25,7 @@ services:
       - DB_USER=${DB_USER}
       - DB_PASSWORD=${DB_PASSWORD}
       - DB_NAME=${DB_NAME}
+      - JWT_SECRET=${JWT_SECRET}
     volumes:
       - ./src/backend:/app
     container_name: jasontech-erp-app

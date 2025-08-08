@@ -7,12 +7,27 @@ import (
 	"github.com/gin-gonic/gin"
 	"erp/db"
 	"erp/controllers"
+	"erp/models"
 	"erp/routes"
 )
 
 func main() {
 	// 創建 Gin 引擎
 	r := gin.Default()
+
+	// 設定 CORS 中間件
+	r.Use(func(c *gin.Context) {
+		c.Header("Access-Control-Allow-Origin", "*")
+		c.Header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+		c.Header("Access-Control-Allow-Headers", "Content-Type, Authorization")
+
+		if c.Request.Method == "OPTIONS" {
+			c.AbortWithStatus(204)
+			return
+		}
+
+		c.Next()
+	})
 
 	// 初始化資料庫連接
 	database, err := db.New()
@@ -29,6 +44,14 @@ func main() {
 		os.Exit(1)
 	}
 	fmt.Println("資料庫連線測試成功")
+
+	// 自動建立/更新資料表 schema
+	err = database.AutoMigrate(&models.User{})
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "資料庫 migration 失敗: %v\n", err)
+		os.Exit(1)
+	}
+	fmt.Println("資料庫 schema 同步完成")
 	fmt.Println("成功連接到資料庫")
 
 	// 初始化 controllers 並注入資料庫依賴
