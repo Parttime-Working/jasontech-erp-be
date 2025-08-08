@@ -4,15 +4,11 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/gin-gonic/gin"
 	"erp/db"
-	"erp/controllers"
-	"erp/routes"
 )
 
 func main() {
-	// 創建 Gin 引擎
-	r := gin.Default()
+	fmt.Println("開始資料庫連接測試...")
 
 	// 初始化資料庫連接
 	database, err := db.New()
@@ -28,15 +24,7 @@ func main() {
 		fmt.Fprintf(os.Stderr, "資料庫連線測試失敗: %v\n", err)
 		os.Exit(1)
 	}
-	fmt.Println("資料庫連線測試成功")
-	fmt.Println("成功連接到資料庫")
 
-	// 初始化 controllers 並注入資料庫依賴
-	controllers.SetDB(database)
-
-	// 設置路由
-	routes.RegisterAuthRoutes(r)
-
-	// 啟動伺服器，監聽 8000 端口
-	r.Run(":8000")
+	fmt.Println("✅ 資料庫連線測試成功!")
+	fmt.Println("✅ 所有資料庫操作正常")
 }

@@ -1,10 +1,26 @@
 package controllers
 
 import (
+	"context"
+	"database/sql"
 	"erp/models"
+	"erp/db"
+	"os"
+	"time"
+
+	"github.com/golang-jwt/jwt/v5"
 	"github.com/gin-gonic/gin"
+	"golang.org/x/crypto/bcrypt"
 	"net/http"
 )
+
+// 全局資料庫實例 (依賴注入)
+var database *db.DB
+
+// SetDB 設定資料庫依賴 (依賴注入)
+func SetDB(db *db.DB) {
+	database = db
+}
 
 func Login(c *gin.Context) {
 	var credentials models.Credentials
@@ -13,9 +29,45 @@ func Login(c *gin.Context) {
 		return
 	}
 
-	if credentials.Username == "admin" && credentials.Password == "password" {
-		c.JSON(http.StatusOK, gin.H{"message": "Login successful"})
-	} else {
+	// 取得資料庫連接
+	conn := database.GetConn()
+
+	// 查詢數據庫以驗證用戶
+	var user models.User
+	err := conn.QueryRow(context.Background(), "SELECT id, username, password, email FROM users WHERE username=$1", credentials.Username).Scan(&user.ID, &user.Username, &user.Password, &user.Email)
+	if err == sql.ErrNoRows {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid username or password"})
+		return
 	}
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Database error"})
+		return
+	}
+
+	// 驗證密碼
+	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(credentials.Password))
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid username or password"})
+		return
+	}
+
+	// 生成 JWT 令牌
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+		"user_id":  user.ID,
+		"username": user.Username,
+		"exp":      time.Now().Add(time.Hour * 24).Unix(),
+	})
+
+	// 使用密鑰簽署令牌
+	tokenString, err := token.SignedString([]byte(os.Getenv("JWT_SECRET")))
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not generate token"})
+		return
+	}
+
+	// 返回成功響應和令牌
+	c.JSON(http.StatusOK, gin.H{
+		"message": "Login successful",
+		"token":   tokenString,
+	})
 }
