@@ -12,14 +12,6 @@ import (
 	"net/http"
 )
 
-// 全局資料庫實例 (依賴注入)
-var database *db.DB
-
-// SetDB 設定資料庫依賴 (依賴注入)
-func SetDB(db *db.DB) {
-	database = db
-}
-
 func Login(c *gin.Context) {
 	var credentials models.Credentials
 	if err := c.ShouldBindJSON(&credentials); err != nil {

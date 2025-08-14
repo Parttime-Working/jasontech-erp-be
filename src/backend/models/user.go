@@ -27,6 +27,20 @@ type Credentials struct {
 	Password string `json:"password" binding:"required"`
 }
 
+// CreateUserInput 建立使用者時的輸入
+type CreateUserInput struct {
+	Username string `json:"username" binding:"required"`
+	Email    string `json:"email" binding:"required,email"`
+	Password string `json:"password" binding:"required,min=8"`
+}
+
+// UpdateUserInput 更新使用者時的輸入
+type UpdateUserInput struct {
+	Username *string `json:"username,omitempty"`
+	Email    *string `json:"email,omitempty"`
+	Password *string `json:"password,omitempty"`
+}
+
 // UserResponse 回傳給前端的使用者資訊 (不包含密碼)
 type UserResponse struct {
 	ID        uint      `json:"id"`

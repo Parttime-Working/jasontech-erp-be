@@ -15,6 +15,10 @@ func main() {
 	// 創建 Gin 引擎
 	r := gin.Default()
 
+	// 禁用重定向
+	r.RedirectTrailingSlash = false
+	r.RedirectFixedPath = false
+
 	// 設定 CORS 中間件
 	r.Use(func(c *gin.Context) {
 		c.Header("Access-Control-Allow-Origin", "*")
@@ -59,6 +63,7 @@ func main() {
 
 	// 設置路由
 	routes.RegisterAuthRoutes(r)
+	routes.RegisterUserRoutes(r)
 
 	// 啟動伺服器，監聽 8000 端口
 	r.Run(":8000")
