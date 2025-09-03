@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"erp/models"
+	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -30,8 +31,15 @@ func CreateUser(c *gin.Context) {
 		Password: string(hashedPassword),
 	}
 
-	result := database.Create(&user)
-	if result.Error != nil {
+	// 設置角色：如果沒有指定，默認為 "user"
+	if input.Role != "" {
+		user.Role = input.Role
+	} else {
+		user.Role = "user"
+	}
+
+	err = GetUserRepo().Create(&user)
+	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "無法建立使用者"})
 		return
 	}
@@ -41,6 +49,7 @@ func CreateUser(c *gin.Context) {
 		ID:        user.ID,
 		Username:  user.Username,
 		Email:     user.Email,
+		Role:      user.Role,
 		CreatedAt: user.CreatedAt,
 		UpdatedAt: user.UpdatedAt,
 	})
@@ -48,9 +57,8 @@ func CreateUser(c *gin.Context) {
 
 // GetUsers 取得所有使用者
 func GetUsers(c *gin.Context) {
-	var users []models.User
-	result := database.Find(&users)
-	if result.Error != nil {
+	users, err := GetUserRepo().GetAll()
+	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "無法獲取使用者列表"})
 		return
 	}
@@ -62,6 +70,7 @@ func GetUsers(c *gin.Context) {
 			ID:        user.ID,
 			Username:  user.Username,
 			Email:     user.Email,
+			Role:      user.Role,
 			CreatedAt: user.CreatedAt,
 			UpdatedAt: user.UpdatedAt,
 		})
@@ -73,10 +82,16 @@ func GetUsers(c *gin.Context) {
 // GetUserByID 根據 ID 取得特定使用者
 func GetUserByID(c *gin.Context) {
 	id := c.Param("id")
-	var user models.User
 
-	result := database.First(&user, id)
-	if result.Error != nil {
+	// 將 string ID 轉換為 uint
+	var userID uint
+	if _, err := fmt.Sscanf(id, "%d", &userID); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "無效的使用者 ID"})
+		return
+	}
+
+	user, err := GetUserRepo().GetByID(userID)
+	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "找不到使用者"})
 		return
 	}
@@ -85,6 +100,7 @@ func GetUserByID(c *gin.Context) {
 		ID:        user.ID,
 		Username:  user.Username,
 		Email:     user.Email,
+		Role:      user.Role,
 		CreatedAt: user.CreatedAt,
 		UpdatedAt: user.UpdatedAt,
 	})
@@ -93,10 +109,17 @@ func GetUserByID(c *gin.Context) {
 // UpdateUser 更新使用者資訊
 func UpdateUser(c *gin.Context) {
 	id := c.Param("id")
-	var user models.User
+
+	// 將 string ID 轉換為 uint
+	var userID uint
+	if _, err := fmt.Sscanf(id, "%d", &userID); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "無效的使用者 ID"})
+		return
+	}
 
 	// 檢查使用者是否存在
-	if err := database.First(&user, id).Error; err != nil {
+	user, err := GetUserRepo().GetByID(userID)
+	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "找不到使用者"})
 		return
 	}
@@ -124,9 +147,31 @@ func UpdateUser(c *gin.Context) {
 		}
 		user.Password = string(hashedPassword)
 	}
+	if input.Role != nil {
+		// 檢查權限：只有管理員可以修改角色
+		currentUserRole, exists := c.Get("role")
+		if !exists || currentUserRole != "admin" {
+			c.JSON(http.StatusForbidden, gin.H{"error": "只有管理員可以修改使用者角色"})
+			return
+		}
+
+		// 禁止修改最高管理員的角色 (ID=1 且角色為 admin)
+		if user.ID == 1 && user.Role == "admin" {
+			c.JSON(http.StatusForbidden, gin.H{"error": "無法修改系統最高管理員的角色"})
+			return
+		}
+
+		// 驗證角色值
+		if *input.Role != "admin" && *input.Role != "user" {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "無效的角色值，只能是 'admin' 或 'user'"})
+			return
+		}
+
+		user.Role = *input.Role
+	}
 
 	// 儲存變更
-	if err := database.Save(&user).Error; err != nil {
+	if err := GetUserRepo().Update(user); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "無法更新使用者"})
 		return
 	}
@@ -135,6 +180,7 @@ func UpdateUser(c *gin.Context) {
 		ID:        user.ID,
 		Username:  user.Username,
 		Email:     user.Email,
+		Role:      user.Role,
 		CreatedAt: user.CreatedAt,
 		UpdatedAt: user.UpdatedAt,
 	})
@@ -143,16 +189,29 @@ func UpdateUser(c *gin.Context) {
 // DeleteUser 刪除使用者
 func DeleteUser(c *gin.Context) {
 	id := c.Param("id")
-	var user models.User
+
+	// 將 string ID 轉換為 uint
+	var userID uint
+	if _, err := fmt.Sscanf(id, "%d", &userID); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "無效的使用者 ID"})
+		return
+	}
 
 	// 檢查使用者是否存在
-	if err := database.First(&user, id).Error; err != nil {
+	user, err := GetUserRepo().GetByID(userID)
+	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "找不到使用者"})
 		return
 	}
 
+	// 檢查權限：禁止刪除最高管理員 (ID=1 且角色為 admin)
+	if user.ID == 1 && user.Role == "admin" {
+		c.JSON(http.StatusForbidden, gin.H{"error": "無法刪除系統最高管理員"})
+		return
+	}
+
 	// 執行軟刪除
-	if err := database.Delete(&user).Error; err != nil {
+	if err := GetUserRepo().Delete(userID); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "無法刪除使用者"})
 		return
 	}

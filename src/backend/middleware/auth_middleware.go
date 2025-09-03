@@ -41,9 +41,28 @@ func AuthMiddleware() gin.HandlerFunc {
 			// 將使用者資訊存入 context
 			c.Set("user_id", claims["user_id"])
 			c.Set("username", claims["username"])
+			c.Set("role", claims["role"]) // 添加角色信息
 			c.Next()
 		} else {
 			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "無效的 token"})
 		}
+	}
+}
+
+// AdminMiddleware 檢查用戶是否為管理員
+func AdminMiddleware() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		role, exists := c.Get("role")
+		if !exists {
+			c.AbortWithStatusJSON(http.StatusForbidden, gin.H{"error": "無法獲取用戶角色"})
+			return
+		}
+
+		if role != "admin" {
+			c.AbortWithStatusJSON(http.StatusForbidden, gin.H{"error": "需要管理員權限"})
+			return
+		}
+
+		c.Next()
 	}
 }

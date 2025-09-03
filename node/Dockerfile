@@ -7,8 +7,10 @@ RUN apt-get update && apt-get install -y openssl ca-certificates
 RUN apt-get dist-upgrade -y
 RUN npm install -g pnpm
 
-# RUN pnpm install
+# 複製並設定 entrypoint 腳本
+COPY entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
 
 EXPOSE 3000
 
-CMD ["pnpm", "dev"]
+ENTRYPOINT ["/entrypoint.sh"]

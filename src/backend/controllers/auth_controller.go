@@ -2,12 +2,11 @@ package controllers
 
 import (
 	"erp/models"
-	"erp/db"
 	"os"
 	"time"
 
-	"github.com/golang-jwt/jwt/v5"
 	"github.com/gin-gonic/gin"
+	"github.com/golang-jwt/jwt/v5"
 	"golang.org/x/crypto/bcrypt"
 	"net/http"
 )
@@ -19,16 +18,15 @@ func Login(c *gin.Context) {
 		return
 	}
 
-	// 使用 GORM 查詢使用者
-	var user models.User
-	result := database.Where("username = ?", credentials.Username).First(&user)
-	if result.Error != nil {
+	// 使用 Repository 查詢使用者
+	user, err := GetUserRepo().GetByUsername(credentials.Username)
+	if err != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid username or password"})
 		return
 	}
 
 	// 驗證密碼
-	err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(credentials.Password))
+	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(credentials.Password))
 	if err != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid username or password"})
 		return
@@ -38,6 +36,7 @@ func Login(c *gin.Context) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"user_id":  user.ID,
 		"username": user.Username,
+		"role":     user.Role, // 添加角色信息到 token
 		"exp":      time.Now().Add(time.Hour * 24).Unix(),
 	})
 
@@ -56,6 +55,7 @@ func Login(c *gin.Context) {
 			ID:        user.ID,
 			Username:  user.Username,
 			Email:     user.Email,
+			Role:      user.Role,
 			CreatedAt: user.CreatedAt,
 			UpdatedAt: user.UpdatedAt,
 		},
