@@ -46,12 +46,13 @@ func CreateUser(c *gin.Context) {
 
 	// 回傳新建立的使用者資訊
 	c.JSON(http.StatusCreated, models.UserResponse{
-		ID:        user.ID,
-		Username:  user.Username,
-		Email:     user.Email,
-		Role:      user.Role,
-		CreatedAt: user.CreatedAt,
-		UpdatedAt: user.UpdatedAt,
+		ID:          user.ID,
+		Username:    user.Username,
+		Email:       user.Email,
+		Role:        user.Role,
+		LastLoginAt: user.LastLoginAt,
+		CreatedAt:   user.CreatedAt,
+		UpdatedAt:   user.UpdatedAt,
 	})
 }
 
@@ -67,12 +68,13 @@ func GetUsers(c *gin.Context) {
 	var userResponses []models.UserResponse
 	for _, user := range users {
 		userResponses = append(userResponses, models.UserResponse{
-			ID:        user.ID,
-			Username:  user.Username,
-			Email:     user.Email,
-			Role:      user.Role,
-			CreatedAt: user.CreatedAt,
-			UpdatedAt: user.UpdatedAt,
+			ID:          user.ID,
+			Username:    user.Username,
+			Email:       user.Email,
+			Role:        user.Role,
+			LastLoginAt: user.LastLoginAt,
+			CreatedAt:   user.CreatedAt,
+			UpdatedAt:   user.UpdatedAt,
 		})
 	}
 
@@ -97,12 +99,13 @@ func GetUserByID(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, models.UserResponse{
-		ID:        user.ID,
-		Username:  user.Username,
-		Email:     user.Email,
-		Role:      user.Role,
-		CreatedAt: user.CreatedAt,
-		UpdatedAt: user.UpdatedAt,
+		ID:          user.ID,
+		Username:    user.Username,
+		Email:       user.Email,
+		Role:        user.Role,
+		LastLoginAt: user.LastLoginAt,
+		CreatedAt:   user.CreatedAt,
+		UpdatedAt:   user.UpdatedAt,
 	})
 }
 
@@ -177,12 +180,13 @@ func UpdateUser(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, models.UserResponse{
-		ID:        user.ID,
-		Username:  user.Username,
-		Email:     user.Email,
-		Role:      user.Role,
-		CreatedAt: user.CreatedAt,
-		UpdatedAt: user.UpdatedAt,
+		ID:          user.ID,
+		Username:    user.Username,
+		Email:       user.Email,
+		Role:        user.Role,
+		LastLoginAt: user.LastLoginAt,
+		CreatedAt:   user.CreatedAt,
+		UpdatedAt:   user.UpdatedAt,
 	})
 }
 

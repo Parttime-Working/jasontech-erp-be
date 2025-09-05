@@ -7,14 +7,15 @@ import (
 
 // User 使用者模型 (GORM)
 type User struct {
-	ID        uint           `gorm:"primaryKey" json:"id"`
-	Username  string         `gorm:"uniqueIndex;not null;size:50" json:"username"`
-	Email     string         `gorm:"uniqueIndex;not null;size:100" json:"email"`
-	Password  string         `gorm:"not null;size:255" json:"-"` // 隱藏密碼欄位
-	Role      string         `gorm:"default:user;size:20" json:"role"` // 角色：admin, user
-	CreatedAt time.Time      `json:"created_at"`
-	UpdatedAt time.Time      `json:"updated_at"`
-	DeletedAt gorm.DeletedAt `gorm:"index" json:"-"`
+	ID          uint           `gorm:"primaryKey" json:"id"`
+	Username    string         `gorm:"uniqueIndex;not null;size:50" json:"username"`
+	Email       string         `gorm:"uniqueIndex;not null;size:100" json:"email"`
+	Password    string         `gorm:"not null;size:255" json:"-"` // 隱藏密碼欄位
+	Role        string         `gorm:"default:user;size:20" json:"role"` // 角色：admin, user
+	LastLoginAt *time.Time     `json:"last_login_at"` // 最後登入時間
+	CreatedAt   time.Time      `json:"created_at"`
+	UpdatedAt   time.Time      `json:"updated_at"`
+	DeletedAt   gorm.DeletedAt `gorm:"index" json:"-"`
 }
 
 // TableName 指定資料表名稱
@@ -46,10 +47,11 @@ type UpdateUserInput struct {
 
 // UserResponse 回傳給前端的使用者資訊 (不包含密碼)
 type UserResponse struct {
-	ID        uint      `json:"id"`
-	Username  string    `json:"username"`
-	Email     string    `json:"email"`
-	Role      string    `json:"role"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
+	ID          uint       `json:"id"`
+	Username    string     `json:"username"`
+	Email       string     `json:"email"`
+	Role        string     `json:"role"`
+	LastLoginAt *time.Time `json:"last_login_at"`
+	CreatedAt   time.Time  `json:"created_at"`
+	UpdatedAt   time.Time  `json:"updated_at"`
 }

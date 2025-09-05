@@ -32,6 +32,15 @@ func Login(c *gin.Context) {
 		return
 	}
 
+	// 更新最後登入時間
+	now := time.Now()
+	user.LastLoginAt = &now
+	err = GetUserRepo().Update(user)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not update last login time"})
+		return
+	}
+
 	// 生成 JWT 令牌
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"user_id":  user.ID,
@@ -52,12 +61,13 @@ func Login(c *gin.Context) {
 		"message": "Login successful",
 		"token":   tokenString,
 		"user": models.UserResponse{
-			ID:        user.ID,
-			Username:  user.Username,
-			Email:     user.Email,
-			Role:      user.Role,
-			CreatedAt: user.CreatedAt,
-			UpdatedAt: user.UpdatedAt,
+			ID:          user.ID,
+			Username:    user.Username,
+			Email:       user.Email,
+			Role:        user.Role,
+			LastLoginAt: user.LastLoginAt,
+			CreatedAt:   user.CreatedAt,
+			UpdatedAt:   user.UpdatedAt,
 		},
 	})
 }
