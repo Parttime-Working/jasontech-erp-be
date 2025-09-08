@@ -31,11 +31,11 @@ func CreateUser(c *gin.Context) {
 		Password: string(hashedPassword),
 	}
 
-	// 設置角色：如果沒有指定，默認為 "user"
-	if input.Role != "" {
-		user.Role = input.Role
+	// 設置等級：如果沒有指定，默認為 "user"
+	if input.Level != "" {
+		user.Level = input.Level
 	} else {
-		user.Role = "user"
+		user.Level = "user"
 	}
 
 	err = GetUserRepo().Create(&user)
@@ -49,7 +49,7 @@ func CreateUser(c *gin.Context) {
 		ID:          user.ID,
 		Username:    user.Username,
 		Email:       user.Email,
-		Role:        user.Role,
+		Level:       user.Level,
 		LastLoginAt: user.LastLoginAt,
 		CreatedAt:   user.CreatedAt,
 		UpdatedAt:   user.UpdatedAt,
@@ -71,7 +71,7 @@ func GetUsers(c *gin.Context) {
 			ID:          user.ID,
 			Username:    user.Username,
 			Email:       user.Email,
-			Role:        user.Role,
+			Level:       user.Level,
 			LastLoginAt: user.LastLoginAt,
 			CreatedAt:   user.CreatedAt,
 			UpdatedAt:   user.UpdatedAt,
@@ -102,7 +102,7 @@ func GetUserByID(c *gin.Context) {
 		ID:          user.ID,
 		Username:    user.Username,
 		Email:       user.Email,
-		Role:        user.Role,
+		Level:       user.Level,
 		LastLoginAt: user.LastLoginAt,
 		CreatedAt:   user.CreatedAt,
 		UpdatedAt:   user.UpdatedAt,
@@ -150,27 +150,27 @@ func UpdateUser(c *gin.Context) {
 		}
 		user.Password = string(hashedPassword)
 	}
-	if input.Role != nil {
-		// 檢查權限：只有管理員可以修改角色
-		currentUserRole, exists := c.Get("role")
-		if !exists || currentUserRole != "admin" {
-			c.JSON(http.StatusForbidden, gin.H{"error": "只有管理員可以修改使用者角色"})
+	if input.Level != nil {
+		// 檢查權限：只有管理員或超級管理員可以修改等級
+		currentUserLevel, exists := c.Get("level")
+		if !exists || (currentUserLevel != "admin" && currentUserLevel != "super_admin") {
+			c.JSON(http.StatusForbidden, gin.H{"error": "只有管理員或超級管理員可以修改使用者等級"})
 			return
 		}
 
-		// 禁止修改最高管理員的角色 (ID=1 且角色為 admin)
-		if user.ID == 1 && user.Role == "admin" {
-			c.JSON(http.StatusForbidden, gin.H{"error": "無法修改系統最高管理員的角色"})
+		// 禁止修改最高管理員的等級 (ID=1 且等級為 super_admin)
+		if user.ID == 1 && user.Level == "super_admin" {
+			c.JSON(http.StatusForbidden, gin.H{"error": "無法修改系統最高管理員的等級"})
 			return
 		}
 
-		// 驗證角色值
-		if *input.Role != "admin" && *input.Role != "user" {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "無效的角色值，只能是 'admin' 或 'user'"})
+		// 驗證等級值
+		if *input.Level != "super_admin" && *input.Level != "admin" && *input.Level != "user" {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "無效的等級值，只能是 'super_admin', 'admin' 或 'user'"})
 			return
 		}
 
-		user.Role = *input.Role
+		user.Level = *input.Level
 	}
 
 	// 儲存變更
@@ -183,7 +183,7 @@ func UpdateUser(c *gin.Context) {
 		ID:          user.ID,
 		Username:    user.Username,
 		Email:       user.Email,
-		Role:        user.Role,
+		Level:       user.Level,
 		LastLoginAt: user.LastLoginAt,
 		CreatedAt:   user.CreatedAt,
 		UpdatedAt:   user.UpdatedAt,
@@ -209,7 +209,7 @@ func DeleteUser(c *gin.Context) {
 	}
 
 	// 檢查權限：禁止刪除最高管理員 (ID=1 且角色為 admin)
-	if user.ID == 1 && user.Role == "admin" {
+	if user.ID == 1 && user.Level == "admin" {
 		c.JSON(http.StatusForbidden, gin.H{"error": "無法刪除系統最高管理員"})
 		return
 	}

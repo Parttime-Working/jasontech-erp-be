@@ -41,7 +41,7 @@ func AuthMiddleware() gin.HandlerFunc {
 			// 將使用者資訊存入 context
 			c.Set("user_id", claims["user_id"])
 			c.Set("username", claims["username"])
-			c.Set("role", claims["role"]) // 添加角色信息
+			c.Set("level", claims["level"]) // 添加等級信息
 			c.Next()
 		} else {
 			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "無效的 token"})
@@ -49,20 +49,38 @@ func AuthMiddleware() gin.HandlerFunc {
 	}
 }
 
-// AdminMiddleware 檢查用戶是否為管理員
-func AdminMiddleware() gin.HandlerFunc {
+// LevelMiddleware 檢查用戶等級是否為管理員或超級管理員
+func LevelMiddleware(requiredLevels ...string) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		role, exists := c.Get("role")
+		level, exists := c.Get("level")
 		if !exists {
-			c.AbortWithStatusJSON(http.StatusForbidden, gin.H{"error": "無法獲取用戶角色"})
+			c.AbortWithStatusJSON(http.StatusForbidden, gin.H{"error": "無法獲取用戶等級"})
 			return
 		}
 
-		if role != "admin" {
-			c.AbortWithStatusJSON(http.StatusForbidden, gin.H{"error": "需要管理員權限"})
+		levelStr, ok := level.(string)
+		if !ok {
+			c.AbortWithStatusJSON(http.StatusForbidden, gin.H{"error": "用戶等級格式錯誤"})
 			return
 		}
 
-		c.Next()
+		// 如果沒有指定需要的等級，默認需要 admin 或 super_admin
+		if len(requiredLevels) == 0 {
+			requiredLevels = []string{"admin", "super_admin"}
+		}
+
+		for _, reqLevel := range requiredLevels {
+			if levelStr == reqLevel {
+				c.Next()
+				return
+			}
+		}
+
+		c.AbortWithStatusJSON(http.StatusForbidden, gin.H{"error": "需要更高的權限"})
 	}
+}
+
+// AdminMiddleware 向後相容，檢查用戶是否為管理員或超級管理員
+func AdminMiddleware() gin.HandlerFunc {
+	return LevelMiddleware("admin", "super_admin")
 }

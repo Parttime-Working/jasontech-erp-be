@@ -45,7 +45,7 @@ func Login(c *gin.Context) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"user_id":  user.ID,
 		"username": user.Username,
-		"role":     user.Role, // 添加角色信息到 token
+		"level":    user.Level, // 添加等級信息到 token
 		"exp":      time.Now().Add(time.Hour * 24).Unix(),
 	})
 
@@ -64,7 +64,7 @@ func Login(c *gin.Context) {
 			ID:          user.ID,
 			Username:    user.Username,
 			Email:       user.Email,
-			Role:        user.Role,
+			Level:       user.Level,
 			LastLoginAt: user.LastLoginAt,
 			CreatedAt:   user.CreatedAt,
 			UpdatedAt:   user.UpdatedAt,

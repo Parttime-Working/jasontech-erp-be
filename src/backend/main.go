@@ -15,9 +15,9 @@ func main() {
 	// 創建 Gin 引擎
 	r := gin.Default()
 
-	// 禁用重定向
-	r.RedirectTrailingSlash = false
-	r.RedirectFixedPath = false
+	// 啟用自動重定向 - 統一處理斜線問題
+	r.RedirectTrailingSlash = true
+	r.RedirectFixedPath = true
 
 	// 設定 CORS 中間件
 	r.Use(func(c *gin.Context) {
@@ -50,7 +50,7 @@ func main() {
 	fmt.Println("資料庫連線測試成功")
 
 	// 自動建立/更新資料表 schema
-	err = database.AutoMigrate(&models.User{})
+	err = database.AutoMigrate(&models.User{}, &models.Role{}, &models.Permission{}, &models.UserRole{}, &models.RolePermission{})
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "資料庫 migration 失敗: %v\n", err)
 		os.Exit(1)
@@ -64,6 +64,8 @@ func main() {
 	// 設置路由
 	routes.RegisterAuthRoutes(r)
 	routes.RegisterUserRoutes(r)
+	routes.RegisterRoleRoutes(r)
+	routes.RegisterPermissionRoutes(r)
 
 	// 啟動伺服器，監聽 8000 端口
 	r.Run(":8000")
