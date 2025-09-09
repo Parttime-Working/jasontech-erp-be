@@ -2,7 +2,9 @@ package controllers
 
 import (
 	"erp/models"
+	"fmt"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -60,6 +62,37 @@ func Login(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"message": "Login successful",
 		"token":   tokenString,
+		"user": models.UserResponse{
+			ID:          user.ID,
+			Username:    user.Username,
+			Email:       user.Email,
+			Level:       user.Level,
+			LastLoginAt: user.LastLoginAt,
+			CreatedAt:   user.CreatedAt,
+			UpdatedAt:   user.UpdatedAt,
+		},
+	})
+}
+
+// VerifyToken 驗證 JWT token 並回傳使用者資訊
+func VerifyToken(c *gin.Context) {
+	// 從中間件獲取使用者資訊（中間件已經驗證過 token）
+	userID, exists := c.Get("user_id")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "認證失敗"})
+		return
+	}
+
+	// 獲取使用者詳細資訊
+	user, err := GetUserRepo().GetByID(userID.(uint))
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "認證失敗"})
+		return
+	}
+
+	// 回傳使用者資訊
+	c.JSON(http.StatusOK, gin.H{
+		"message": "Token valid",
 		"user": models.UserResponse{
 			ID:          user.ID,
 			Username:    user.Username,

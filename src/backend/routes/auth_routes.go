@@ -12,7 +12,7 @@ func RegisterAuthRoutes(r *gin.RouterGroup) {
 	{
 		auth.POST("/login", controllers.Login)
 
-		// 添加驗證端點，需要身份驗證
+		// 添加驗證端點，使用標準的身份驗證中間件
 		auth.GET("/verify", middleware.AuthMiddleware(), controllers.VerifyToken)
 
 		// 新增測試路由
