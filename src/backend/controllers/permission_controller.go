@@ -156,30 +156,30 @@ func AssignPermissionToRole(c *gin.Context) {
 		return
 	}
 
-	// 檢查用戶等級權限
+	// 檢查使用者等級權限
 	userLevel, exists := c.Get("level")
 	if !exists {
-		c.JSON(http.StatusForbidden, gin.H{"error": "無法獲取用戶等級"})
+		c.JSON(http.StatusForbidden, gin.H{"error": "無法獲取使用者等級"})
 		return
 	}
 
-	// 根據用戶等級檢查權限
+	// 根據使用者等級檢查權限
 	userLevelStr, ok := userLevel.(string)
 	if !ok {
-		c.JSON(http.StatusForbidden, gin.H{"error": "用戶等級格式錯誤"})
+		c.JSON(http.StatusForbidden, gin.H{"error": "使用者等級格式錯誤"})
 		return
 	}
 
 	if userLevelStr == "user" {
-		c.JSON(http.StatusForbidden, gin.H{"error": "一般用戶無法編輯權限"})
+		c.JSON(http.StatusForbidden, gin.H{"error": "一般使用者無法編輯權限"})
 		return
 	}
 
-	// 如果是 admin，需要檢查用戶是否擁有該權限模組的管理權限
+	// 如果是 admin，需要檢查使用者是否擁有該權限模組的管理權限
 	if userLevelStr == "admin" {
 		// 目前暫時允許所有 admin 編輯，但實際上應該檢查具體權限
-		// 這裡需要實作：檢查用戶是否擁有該模組的管理權限
-		// 例如：檢查用戶的角色是否包含 "manage_" + module 的權限
+		// 這裡需要實作：檢查使用者是否擁有該模組的管理權限
+		// 例如：檢查使用者的角色是否包含 "manage_" + module 的權限
 	}
 
 	// 如果是 super_admin，可以編輯所有權限
@@ -213,29 +213,29 @@ func RemovePermissionFromRole(c *gin.Context) {
 		return
 	}
 
-	// 檢查用戶等級權限
+	// 檢查使用者等級權限
 	userLevel, exists := c.Get("level")
 	if !exists {
-		c.JSON(http.StatusForbidden, gin.H{"error": "無法獲取用戶等級"})
+		c.JSON(http.StatusForbidden, gin.H{"error": "無法獲取使用者等級"})
 		return
 	}
 
-	// 根據用戶等級檢查權限
+	// 根據使用者等級檢查權限
 	userLevelStr, ok := userLevel.(string)
 	if !ok {
-		c.JSON(http.StatusForbidden, gin.H{"error": "用戶等級格式錯誤"})
+		c.JSON(http.StatusForbidden, gin.H{"error": "使用者等級格式錯誤"})
 		return
 	}
 
 	if userLevelStr == "user" {
-		c.JSON(http.StatusForbidden, gin.H{"error": "一般用戶無法編輯權限"})
+		c.JSON(http.StatusForbidden, gin.H{"error": "一般使用者無法編輯權限"})
 		return
 	}
 
-	// 如果是 admin，需要檢查用戶是否擁有該權限模組的管理權限
+	// 如果是 admin，需要檢查使用者是否擁有該權限模組的管理權限
 	if userLevelStr == "admin" {
 		// 目前暫時允許所有 admin 編輯，但實際上應該檢查具體權限
-		// 這裡需要實作：檢查用戶是否擁有該模組的管理權限
+		// 這裡需要實作：檢查使用者是否擁有該模組的管理權限
 	}
 
 	// 如果是 super_admin，可以編輯所有權限

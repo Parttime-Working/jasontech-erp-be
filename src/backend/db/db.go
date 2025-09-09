@@ -131,7 +131,7 @@ func (r *userRepository) Create(user *models.User) error {
 	return r.db.DB.Create(user).Error
 }
 
-// GetByUsername 根據用戶名獲取使用者
+// GetByUsername 根據使用者名獲取使用者
 func (r *userRepository) GetByUsername(username string) (*models.User, error) {
 	var user models.User
 	err := r.db.DB.Where("username = ?", username).First(&user).Error

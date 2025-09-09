@@ -61,11 +61,14 @@ func main() {
 	// 初始化 controllers 並注入資料庫依賴
 	controllers.SetDB(database)
 
-	// 設置路由
-	routes.RegisterAuthRoutes(r)
-	routes.RegisterUserRoutes(r)
-	routes.RegisterRoleRoutes(r)
-	routes.RegisterPermissionRoutes(r)
+	// 設置 API 路由組
+	api := r.Group("/api")
+	{
+		routes.RegisterAuthRoutes(api)
+		routes.RegisterUserRoutes(api)
+		routes.RegisterRoleRoutes(api)
+		routes.RegisterPermissionRoutes(api)
+	}
 
 	// 啟動伺服器，監聽 8000 端口
 	r.Run(":8000")

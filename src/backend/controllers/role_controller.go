@@ -122,14 +122,14 @@ func DeleteRole(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "角色已刪除"})
 }
 
-// AssignRoleToUser 為用戶分配角色
+// AssignRoleToUser 為使用者分配角色
 func AssignRoleToUser(c *gin.Context) {
 	userIDStr := c.Param("userId")
 	roleIDStr := c.Param("roleId")
 
 	userID, err := strconv.ParseUint(userIDStr, 10, 32)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "無效的用戶 ID"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "無效的使用者 ID"})
 		return
 	}
 
@@ -139,10 +139,10 @@ func AssignRoleToUser(c *gin.Context) {
 		return
 	}
 
-	// 檢查用戶等級權限
+	// 檢查使用者等級權限
 	userLevel, exists := c.Get("level")
 	if !exists {
-		c.JSON(http.StatusForbidden, gin.H{"error": "無法獲取用戶等級"})
+		c.JSON(http.StatusForbidden, gin.H{"error": "無法獲取使用者等級"})
 		return
 	}
 
@@ -162,14 +162,14 @@ func AssignRoleToUser(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "角色分配成功"})
 }
 
-// RemoveRoleFromUser 從用戶移除角色
+// RemoveRoleFromUser 從使用者移除角色
 func RemoveRoleFromUser(c *gin.Context) {
 	userIDStr := c.Param("userId")
 	roleIDStr := c.Param("roleId")
 
 	userID, err := strconv.ParseUint(userIDStr, 10, 32)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "無效的用戶 ID"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "無效的使用者 ID"})
 		return
 	}
 
@@ -179,10 +179,10 @@ func RemoveRoleFromUser(c *gin.Context) {
 		return
 	}
 
-	// 檢查用戶等級權限
+	// 檢查使用者等級權限
 	userLevel, exists := c.Get("level")
 	if !exists {
-		c.JSON(http.StatusForbidden, gin.H{"error": "無法獲取用戶等級"})
+		c.JSON(http.StatusForbidden, gin.H{"error": "無法獲取使用者等級"})
 		return
 	}
 

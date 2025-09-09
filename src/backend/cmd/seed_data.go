@@ -55,27 +55,27 @@ func main() {
 	}
 
 	if result.RowsAffected > 0 {
-		fmt.Println("✅ 管理員用戶建立成功")
+		fmt.Println("✅ 管理員使用者建立成功")
 		fmt.Println("   📧 信箱: admin@jasontech.com")
-		fmt.Println("   👤 用戶名: admin")
+		fmt.Println("   👤 使用者名: admin")
 		fmt.Println("   🔑 密碼: password123")
 		fmt.Println("   👑 等級: super_admin")
-		fmt.Printf("   🆔 用戶 ID: %d\n", user.ID)
+		fmt.Printf("   🆔 使用者 ID: %d\n", user.ID)
 		fmt.Println("")
 		fmt.Println("🎯 系統初始化完成！")
 		fmt.Println("   • 超級管理員帳號已建立")
-		fmt.Println("   • 新用戶默認等級為 'user'")
-		fmt.Println("   • 只有管理員或超級管理員可以創建其他用戶")
+		fmt.Println("   • 新使用者默認等級為 'user'")
+		fmt.Println("   • 只有管理員或超級管理員可以創建其他使用者")
 	} else {
-		fmt.Println("✅ 管理員用戶已存在")
-		fmt.Printf("   🆔 用戶 ID: %d\n", user.ID)
+		fmt.Println("✅ 管理員使用者已存在")
+		fmt.Printf("   🆔 使用者 ID: %d\n", user.ID)
 	}
 
 	// 建立測試用的 sample user
 	samplePassword := "sample123"
 	sampleHashedPassword, err := bcrypt.GenerateFromPassword([]byte(samplePassword), bcrypt.DefaultCost)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Sample 用戶密碼加密失敗: %v\n", err)
+		fmt.Fprintf(os.Stderr, "Sample 使用者密碼加密失敗: %v\n", err)
 		os.Exit(1)
 	}
 
@@ -83,26 +83,26 @@ func main() {
 		Username: "sampleuser",
 		Email:    "sample@jasontech.com",
 		Password: string(sampleHashedPassword),
-		Level:    "user", // 一般用戶等級
+		Level:    "user", // 一般使用者等級
 	}
 
 	// 使用 GORM 的 FirstOrCreate 來避免重複建立
 	sampleResult := database.Where(models.User{Username: sampleUser.Username}).FirstOrCreate(&sampleUser)
 	if sampleResult.Error != nil {
-		fmt.Fprintf(os.Stderr, "建立 sample 用戶失敗: %v\n", sampleResult.Error)
+		fmt.Fprintf(os.Stderr, "建立 sample 使用者失敗: %v\n", sampleResult.Error)
 		os.Exit(1)
 	}
 
 	if sampleResult.RowsAffected > 0 {
-		fmt.Println("✅ Sample 用戶建立成功")
+		fmt.Println("✅ Sample 使用者建立成功")
 		fmt.Println("   📧 信箱: sample@jasontech.com")
-		fmt.Println("   👤 用戶名: sampleuser")
+		fmt.Println("   👤 使用者名: sampleuser")
 		fmt.Println("   🔑 密碼: sample123")
 		fmt.Println("   👤 等級: user")
-		fmt.Printf("   🆔 用戶 ID: %d\n", sampleUser.ID)
+		fmt.Printf("   🆔 使用者 ID: %d\n", sampleUser.ID)
 	} else {
-		fmt.Println("✅ Sample 用戶已存在")
-		fmt.Printf("   🆔 用戶 ID: %d\n", sampleUser.ID)
+		fmt.Println("✅ Sample 使用者已存在")
+		fmt.Printf("   🆔 使用者 ID: %d\n", sampleUser.ID)
 	}
 
 	// 建立範例角色
@@ -158,7 +158,7 @@ func main() {
 		{ModuleName: "project", Resource: "budget", Action: "manage", Code: "project.budget.manage", DisplayName: "管理專案預算", Description: "管理專案預算"},
 
 		// 系統管理模組
-		{ModuleName: "system", Resource: "users", Action: "manage", Code: "system.users.manage", DisplayName: "管理系統用戶", Description: "管理系統用戶帳號"},
+		{ModuleName: "system", Resource: "users", Action: "manage", Code: "system.users.manage", DisplayName: "管理系統使用者", Description: "管理系統使用者帳號"},
 		{ModuleName: "system", Resource: "roles", Action: "manage", Code: "system.roles.manage", DisplayName: "管理角色和權限", Description: "管理角色和權限設定"},
 		{ModuleName: "system", Resource: "logs", Action: "view", Code: "system.logs.view", DisplayName: "查看系統日誌", Description: "查看系統操作日誌"},
 		{ModuleName: "system", Resource: "settings", Action: "manage", Code: "system.settings.manage", DisplayName: "管理系統設定", Description: "管理系統配置設定"},
@@ -178,7 +178,7 @@ func main() {
 	fmt.Println("")
 	fmt.Println("🎯 系統初始化完成！")
 	fmt.Println("   • 超級管理員帳號已建立")
-	fmt.Println("   • Sample 用戶已建立")
-	fmt.Println("   • 新用戶默認等級為 'user'")
-	fmt.Println("   • 只有管理員或超級管理員可以創建其他用戶")
+	fmt.Println("   • Sample 使用者已建立")
+	fmt.Println("   • 新使用者默認等級為 'user'")
+	fmt.Println("   • 只有管理員或超級管理員可以創建其他使用者")
 }

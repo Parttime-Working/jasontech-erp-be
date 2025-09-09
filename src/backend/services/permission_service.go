@@ -14,9 +14,9 @@ func NewPermissionService() *PermissionService {
 	return &PermissionService{}
 }
 
-// HasPermission 檢查用戶是否擁有特定權限
+// HasPermission 檢查使用者是否擁有特定權限
 func (s *PermissionService) HasPermission(userID uint, permissionCode string) bool {
-	// 1. 獲取用戶等級
+	// 1. 獲取使用者等級
 	userLevel := s.getUserLevel(userID)
 
 	// 2. 超級管理員檢查：擁有所有權限
@@ -34,54 +34,54 @@ func (s *PermissionService) HasPermission(userID uint, permissionCode string) bo
 		}
 	}
 
-	// 4. 一般用戶權限檢查：根據其所屬角色的權限進行判斷
+	// 4. 一般使用者權限檢查：根據其所屬角色的權限進行判斷
 	return s.checkUserRolePermissions(userID, permissionCode)
 }
 
-// getUserLevel 獲取用戶等級
+// getUserLevel 獲取使用者等級
 func (s *PermissionService) getUserLevel(userID uint) string {
-	// TODO: 實作從資料庫獲取用戶等級的邏輯
+	// TODO: 實作從資料庫獲取使用者等級的邏輯
 	// 這裡應該查詢 users 表中的 level 欄位
 	return "user" // 臨時返回值
 }
 
 // getUserAssignedModules 獲取管理員被分配的模組
 func (s *PermissionService) getUserAssignedModules(userID uint) []string {
-	// TODO: 實作從資料庫獲取用戶分配模組的邏輯
-	// 這裡應該查詢用戶的角色，然後獲取角色對應的權限模組
+	// TODO: 實作從資料庫獲取使用者分配模組的邏輯
+	// 這裡應該查詢使用者的角色，然後獲取角色對應的權限模組
 	return []string{"hr", "finance"} // 臨時返回值
 }
 
-// checkUserRolePermissions 檢查用戶角色權限
+// checkUserRolePermissions 檢查使用者角色權限
 func (s *PermissionService) checkUserRolePermissions(userID uint, permissionCode string) bool {
-	// TODO: 實作檢查用戶角色權限的邏輯
-	// 1. 查詢用戶的所有角色
+	// TODO: 實作檢查使用者角色權限的邏輯
+	// 1. 查詢使用者的所有角色
 	// 2. 查詢每個角色的所有權限
 	// 3. 檢查權限代碼是否匹配
 	return false // 臨時返回值
 }
 
-// GetUserPermissions 獲取用戶的所有權限
+// GetUserPermissions 獲取使用者的所有權限
 func (s *PermissionService) GetUserPermissions(userID uint) ([]models.Permission, error) {
-	// TODO: 實作獲取用戶權限列表的邏輯
+	// TODO: 實作獲取使用者權限列表的邏輯
 	return []models.Permission{}, nil
 }
 
-// GetUserRoles 獲取用戶的所有角色
+// GetUserRoles 獲取使用者的所有角色
 func (s *PermissionService) GetUserRoles(userID uint) ([]models.Role, error) {
-	// TODO: 實作獲取用戶角色列表的邏輯
+	// TODO: 實作獲取使用者角色列表的邏輯
 	return []models.Role{}, nil
 }
 
-// AssignRoleToUser 為用戶分配角色
+// AssignRoleToUser 為使用者分配角色
 func (s *PermissionService) AssignRoleToUser(userID, roleID uint) error {
-	// TODO: 實作為用戶分配角色的邏輯
+	// TODO: 實作為使用者分配角色的邏輯
 	return nil
 }
 
-// RemoveRoleFromUser 從用戶移除角色
+// RemoveRoleFromUser 從使用者移除角色
 func (s *PermissionService) RemoveRoleFromUser(userID, roleID uint) error {
-	// TODO: 實作從用戶移除角色的邏輯
+	// TODO: 實作從使用者移除角色的邏輯
 	return nil
 }
 

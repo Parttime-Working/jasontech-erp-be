@@ -49,18 +49,18 @@ func AuthMiddleware() gin.HandlerFunc {
 	}
 }
 
-// LevelMiddleware 檢查用戶等級是否為管理員或超級管理員
+// LevelMiddleware 檢查使用者等級是否為管理員或超級管理員
 func LevelMiddleware(requiredLevels ...string) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		level, exists := c.Get("level")
 		if !exists {
-			c.AbortWithStatusJSON(http.StatusForbidden, gin.H{"error": "無法獲取用戶等級"})
+			c.AbortWithStatusJSON(http.StatusForbidden, gin.H{"error": "無法獲取使用者等級"})
 			return
 		}
 
 		levelStr, ok := level.(string)
 		if !ok {
-			c.AbortWithStatusJSON(http.StatusForbidden, gin.H{"error": "用戶等級格式錯誤"})
+			c.AbortWithStatusJSON(http.StatusForbidden, gin.H{"error": "使用者等級格式錯誤"})
 			return
 		}
 
@@ -80,7 +80,7 @@ func LevelMiddleware(requiredLevels ...string) gin.HandlerFunc {
 	}
 }
 
-// AdminMiddleware 向後相容，檢查用戶是否為管理員或超級管理員
+// AdminMiddleware 向後相容，檢查使用者是否為管理員或超級管理員
 func AdminMiddleware() gin.HandlerFunc {
 	return LevelMiddleware("admin", "super_admin")
 }
